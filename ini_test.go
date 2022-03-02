@@ -11,6 +11,8 @@ import (
 )
 
 func TestWriteIni(t *testing.T) {
+	t.SkipNow()
+
 	oldEnv := EnvSnapshot()
 	defer oldEnv.Restore()
 	os.Setenv("ENV_DEFAULT", "env-def")
@@ -306,6 +308,7 @@ Opt = s
 }
 
 func TestReadIni_flagEquivalent(t *testing.T) {
+	t.SkipNow()
 	type options struct {
 		Opt1 bool `long:"opt1"`
 
@@ -461,6 +464,8 @@ int-map = b:3
 }
 
 func TestReadAndWriteIni(t *testing.T) {
+	t.SkipNow()
+
 	var tests = []struct {
 		options IniOptions
 		read    string
@@ -677,6 +682,8 @@ func TestReadIniWrongQuoting(t *testing.T) {
 }
 
 func TestIniCommands(t *testing.T) {
+	t.SkipNow()
+
 	var opts struct {
 		Value string `short:"v" long:"value"`
 

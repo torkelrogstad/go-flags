@@ -86,11 +86,11 @@ func TestGroupNestedInline(t *testing.T) {
 
 			Nested struct {
 				N string `long:"n"`
-			} `group:"Nested Options"`
-		} `group:"Grouped Options"`
+			} `group:"nested"`
+		} `group:"group"`
 	}{}
 
-	p, ret := assertParserSuccess(t, &opts, "-v", "-g", "--n", "n", "rest")
+	p, ret := assertParserSuccess(t, &opts, "-v", "-g", "--group.nested.n", "n", "rest")
 
 	assertStringArray(t, ret, []string{"rest"})
 
@@ -104,12 +104,12 @@ func TestGroupNestedInline(t *testing.T) {
 
 	assertString(t, opts.Group.Nested.N, "n")
 
-	if p.Command.Group.Find("Grouped Options") == nil {
-		t.Errorf("Expected to find group `Grouped Options'")
+	if p.Command.Group.Find("group") == nil {
+		t.Errorf("Expected to find group `group'")
 	}
 
-	if p.Command.Group.Find("Nested Options") == nil {
-		t.Errorf("Expected to find group `Nested Options'")
+	if p.Command.Group.Find("nested") == nil {
+		t.Errorf("Expected to find group `nested'")
 	}
 }
 
@@ -226,10 +226,10 @@ func TestFindOptionByLongFlagInSubGroup(t *testing.T) {
 	}
 
 	p := NewParser(&opts, Default)
-	opt := p.FindOptionByLongName("testing")
+	opt := p.FindOptionByLongName("sub-group.testing")
 
 	if opt == nil {
-		t.Errorf("Expected option, but found none")
+		t.Fatal("Expected option, but found none")
 	}
 
 	assertString(t, opt.LongName, "testing")

@@ -285,12 +285,20 @@ func (g *Group) scanStruct(realval reflect.Value, sfield *reflect.StructField, h
 		choices := mtag.GetMany("choice")
 		hidden := !isStringFalsy(mtag.Get("hidden"))
 
+		envDefault := mtag.Get("env")
+		// Set a default value for the env tag - unless we're dealing with
+		// --help.
+		if envDefault == "" && longname != "help" {
+			upperLong := strings.ToUpper(longname)
+			envDefault = strings.ReplaceAll(upperLong, "-", "_")
+		}
+
 		option := &Option{
 			Description:      description,
 			ShortName:        short,
 			LongName:         longname,
 			Default:          def,
-			EnvDefaultKey:    mtag.Get("env"),
+			EnvDefaultKey:    envDefault,
 			EnvDefaultDelim:  mtag.Get("env-delim"),
 			OptionalArgument: optional,
 			OptionalValue:    optionalValue,
@@ -380,7 +388,15 @@ func (g *Group) scanSubGroupHandler(realval reflect.Value, sfield *reflect.Struc
 		}
 
 		group.Namespace = mtag.Get("namespace")
+		if group.Namespace == "" {
+			group.Namespace = subgroup
+		}
+
 		group.EnvNamespace = mtag.Get("env-namespace")
+		if group.EnvNamespace == "" {
+			group.EnvNamespace = strings.ToUpper(subgroup)
+		}
+
 		group.Hidden = mtag.Get("hidden") != ""
 
 		return true, nil
