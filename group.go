@@ -40,6 +40,11 @@ type Group struct {
 	// If true, the group is not displayed in the help or man page
 	Hidden bool
 
+	// DefaultTag is the default struct tag we use to look for long option
+	// values, and to populate environment variable options if not set otherwise.
+	// Defaults to "long"
+	DefaultTag string
+
 	// The parent of the group or nil if it has no parent
 	parent interface{}
 
@@ -61,7 +66,7 @@ type scanHandler func(reflect.Value, *reflect.StructField) (bool, error)
 // data needs to be a pointer to a struct from which the fields indicate which
 // options are in the group.
 func (g *Group) AddGroup(shortDescription string, longDescription string, data interface{}) (*Group, error) {
-	group := newGroup(shortDescription, longDescription, data)
+	group := newGroup(g.DefaultTag, shortDescription, longDescription, data)
 
 	group.parent = g
 
@@ -135,10 +140,11 @@ func (g *Group) FindOptionByShortName(shortName rune) *Option {
 	})
 }
 
-func newGroup(shortDescription string, longDescription string, data interface{}) *Group {
+func newGroup(defaultTag, shortDescription, longDescription string, data interface{}) *Group {
 	return &Group{
 		ShortDescription: shortDescription,
 		LongDescription:  longDescription,
+		DefaultTag:       defaultTag,
 
 		data: data,
 	}
@@ -253,7 +259,14 @@ func (g *Group) scanStruct(realval reflect.Value, sfield *reflect.StructField, h
 			}
 		}
 
-		longname := mtag.Get("long")
+		// help has to be special-cased, because a struct is added as the help
+		// group, and that struct has `long` as the tag
+		maybeHelp := mtag.Get("long")
+		longname := mtag.Get(g.DefaultTag)
+		if maybeHelp == "help" {
+			longname = "help"
+		}
+
 		shortname := mtag.Get("short")
 
 		// Need at least either a short or long name

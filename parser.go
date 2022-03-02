@@ -147,6 +147,8 @@ func ParseArgs(data interface{}, args []string) ([]string, error) {
 	return NewParser(data, Default).ParseArgs(args)
 }
 
+const defaultTag = "long"
+
 // NewParser creates a new parser. It uses os.Args[0] as the application
 // name and then calls Parser.NewNamedParser (see Parser.NewNamedParser for
 // more details). The provided data is a pointer to a struct representing the
@@ -154,7 +156,14 @@ func ParseArgs(data interface{}, args []string) ([]string, error) {
 // group should not be added. The options parameter specifies a set of options
 // for the parser.
 func NewParser(data interface{}, options Options) *Parser {
-	p := NewNamedParser(path.Base(os.Args[0]), options)
+	return NewParserWithTag(defaultTag, data, options)
+}
+
+// NewParserWithTag creates a new parser with the given default tag. This is
+// not the cleanest way to implement this, but want to make as few changes
+// as possible to make this work.
+func NewParserWithTag(tag string, data interface{}, options Options) *Parser {
+	p := NewNamedParserWithTag(tag, path.Base(os.Args[0]), options)
 
 	if data != nil {
 		g, err := p.AddGroup("Application Options", "", data)
@@ -173,8 +182,16 @@ func NewParser(data interface{}, options Options) *Parser {
 // executable name in the built-in help message. Option groups and commands can
 // be added to this parser by using AddGroup and AddCommand.
 func NewNamedParser(appname string, options Options) *Parser {
+	const defaultTag = "long"
+	return NewNamedParserWithTag(defaultTag, appname, options)
+}
+
+// NewNamedParser creates a new parser with the given default tag. This is
+// not the cleanest way to implement this, but want to make as few changes
+// as possible to make this work.
+func NewNamedParserWithTag(tag, appname string, options Options) *Parser {
 	p := &Parser{
-		Command:               newCommand(appname, "", "", nil),
+		Command:               newCommand(tag, appname, "", "", nil),
 		Options:               options,
 		NamespaceDelimiter:    ".",
 		EnvNamespaceDelimiter: "_",
