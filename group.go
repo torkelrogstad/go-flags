@@ -253,7 +253,7 @@ func (g *Group) scanStruct(realval reflect.Value, sfield *reflect.StructField, h
 			}
 		}
 
-		longname := mtag.Get("long")
+		longname := mtag.Get("conf")
 		shortname := mtag.Get("short")
 
 		// Need at least either a short or long name
