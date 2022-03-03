@@ -35,6 +35,8 @@ func assertCallerInfo() (string, int) {
 }
 
 func assertErrorf(t *testing.T, format string, args ...interface{}) {
+	t.Helper()
+
 	msg := fmt.Sprintf(format, args...)
 
 	file, line := assertCallerInfo()
@@ -43,6 +45,8 @@ func assertErrorf(t *testing.T, format string, args ...interface{}) {
 }
 
 func assertFatalf(t *testing.T, format string, args ...interface{}) {
+	t.Helper()
+
 	msg := fmt.Sprintf(format, args...)
 
 	file, line := assertCallerInfo()
@@ -51,12 +55,16 @@ func assertFatalf(t *testing.T, format string, args ...interface{}) {
 }
 
 func assertString(t *testing.T, a string, b string) {
+	t.Helper()
+
 	if a != b {
 		assertErrorf(t, "Expected %#v, but got %#v", b, a)
 	}
 }
 
 func assertStringArray(t *testing.T, a []string, b []string) {
+	t.Helper()
+
 	if len(a) != len(b) {
 		assertErrorf(t, "Expected %#v, but got %#v", b, a)
 		return
@@ -71,6 +79,8 @@ func assertStringArray(t *testing.T, a []string, b []string) {
 }
 
 func assertBoolArray(t *testing.T, a []bool, b []bool) {
+	t.Helper()
+
 	if len(a) != len(b) {
 		assertErrorf(t, "Expected %#v, but got %#v", b, a)
 		return
@@ -85,6 +95,8 @@ func assertBoolArray(t *testing.T, a []bool, b []bool) {
 }
 
 func assertParserSuccess(t *testing.T, data interface{}, args ...string) (*Parser, []string) {
+	t.Helper()
+
 	parser := NewParser(data, Default&^PrintErrors)
 	ret, err := parser.ParseArgs(args)
 
@@ -97,11 +109,15 @@ func assertParserSuccess(t *testing.T, data interface{}, args ...string) (*Parse
 }
 
 func assertParseSuccess(t *testing.T, data interface{}, args ...string) []string {
+	t.Helper()
+
 	_, ret := assertParserSuccess(t, data, args...)
 	return ret
 }
 
 func assertError(t *testing.T, err error, typ ErrorType, msg string) {
+	t.Helper()
+
 	if err == nil {
 		assertFatalf(t, "Expected error: \"%s\", but no error occurred", msg)
 		return
@@ -121,6 +137,8 @@ func assertError(t *testing.T, err error, typ ErrorType, msg string) {
 }
 
 func assertParseFail(t *testing.T, typ ErrorType, msg string, data interface{}, args ...string) []string {
+	t.Helper()
+
 	parser := NewParser(data, Default&^PrintErrors)
 	ret, err := parser.ParseArgs(args)
 
@@ -162,6 +180,8 @@ func diff(a, b string) (string, error) {
 }
 
 func assertDiff(t *testing.T, actual, expected, msg string) {
+	t.Helper()
+
 	if actual == expected {
 		return
 	}
